@@ -12,14 +12,15 @@ Part of the HunCor2Vec project.
 from pprint import pprint
 from sys import exit as sys_exit
 from gensim.models import Word2Vec
+from gensim.test.utils import datapath
 from pick import pick
 
 # Conditional imports (to be runnable as a stand-alone script).
 if __name__ == '__main__':
-    from shared.misc import file_select_loop
+    from shared.misc import file_select_menu
     from shared.path_constants import MODELS_DIR_PATH
 else:
-    from scripts.shared.misc import file_select_loop
+    from scripts.shared.misc import file_select_menu
     from scripts.shared.path_constants import MODELS_DIR_PATH
 
 
@@ -68,8 +69,9 @@ def does_not_match(model):
 def main():
     """ Main function. Ask for model filename, load model, and
         run select menu. """
-    print("\nHunCor2Vec model query\n")
-    model_path = file_select_loop("Enter model file name: ", MODELS_DIR_PATH)
+    model_path = datapath(file_select_menu(
+        "Word2Vec model querying tool\n\nSelect model file: ", MODELS_DIR_PATH, ".mdl"
+    ))
     print(f"Loading {model_path}...")
     model = Word2Vec.load(model_path)
     query_task_menu(model)

@@ -18,7 +18,7 @@ from pick import pick
 # Conditional imports (to be runnable as a stand-alone script).
 if __name__ == "__main__":
     from shared.classes import MyCorpus
-    from shared.misc import file_select_loop
+    from shared.misc import file_select_menu
     from shared.path_constants import (
         DOWNLOADS_DIR_PATH,
         LINKS_DIR_PATH,
@@ -27,7 +27,7 @@ if __name__ == "__main__":
 
 else:
     from scripts.shared.classes import MyCorpus
-    from scripts.shared.misc import file_select_loop
+    from scripts.shared.misc import file_select_menu
     from scripts.shared.path_constants import (
         DOWNLOADS_DIR_PATH,
         LINKS_DIR_PATH,
@@ -48,7 +48,7 @@ def new_or_load():
             model_path = datapath((MODELS_DIR_PATH).joinpath(f"{new_model_name}.mdl"))
             operation_type = "new"
         case 1: # Load
-            model_path = file_select_loop("Enter model file name: ", MODELS_DIR_PATH)
+            model_path = datapath(file_select_menu("Select model file: ", MODELS_DIR_PATH, ".mdl"))
             operation_type = "load"
         case 2: # Pass values to exit or return to main menu.
             return None, None
@@ -67,7 +67,7 @@ def get_training_source():
     match index:
         case 0: # Link list.
             # Setup file path.
-            source_path = file_select_loop("Enter list file name: ", LINKS_DIR_PATH)
+            source_path = file_select_menu("Select list file: ", LINKS_DIR_PATH)
             source_type = "list"
         case 1: # Downloaded files.
             # Select model.

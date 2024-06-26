@@ -16,10 +16,10 @@ from urllib.request import urlretrieve
 # Conditional imports (to be runnable as a stand-alone script).
 if __name__ == '__main__':
     from shared.path_constants import LINKS_DIR_PATH, DOWNLOADS_DIR_PATH
-    from shared.misc import file_select_loop
+    from shared.misc import file_select_menu
 else:
     from scripts.shared.path_constants import LINKS_DIR_PATH, DOWNLOADS_DIR_PATH
-    from scripts.shared.misc import file_select_loop
+    from scripts.shared.misc import file_select_menu
 
 
 def download_all(list_file, out_folder):
@@ -38,7 +38,7 @@ def main():
     """ Main function. """
 
     # Get input (filename).
-    list_path = file_select_loop("Enter list file name: ", LINKS_DIR_PATH)
+    list_path = file_select_menu("HunCor2 Downloader\n\nSelect list file: ", LINKS_DIR_PATH, ".txt")
 
     # If does not exist, create downloads/ dir.
     DOWNLOADS_DIR_PATH.mkdir(parents=True, exist_ok=True)
