@@ -69,7 +69,7 @@ def webcorpus2_scraping(corpus_url, out_file):
             my_file.write(f"{corpus_url}{gz_url}\n")
 
     print(f"Process Done. Saved to {out_file}")
-    return input("Press Enter to return to menu...")
+    return input("Press Enter to continue...")
 
 
 def main():

@@ -126,6 +126,7 @@ def main():
         # Save model.
         model.save(model_path)
         print("Model saved.")
+        input("\nPress Enter to continue...")
 
     # else (operation_type = None): exit or return to main menu.
 
