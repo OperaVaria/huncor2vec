@@ -67,7 +67,7 @@ def get_training_source():
     match index:
         case 0: # Link list.
             # Setup file path.
-            source_path = file_select_menu("Select list file: ", LINKS_DIR_PATH)
+            source_path = file_select_menu("Select list file: ", LINKS_DIR_PATH, ".txt")
             source_type = "list"
         case 1: # Downloaded files.
             # Select model.
