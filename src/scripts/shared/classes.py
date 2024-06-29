@@ -17,7 +17,12 @@ from gensim.models.callbacks import CallbackAny2Vec
 from gensim.test.utils import datapath
 from pandas import read_csv
 from yaml import safe_load
-from .path_constants import CONFIG_FILE_PATH, TEMP_GZ_PATH, TEMP_TEXT_PATH, TEMP_TSV_PATH
+from .path_constants import (
+    CONFIG_FILE_PATH,
+    TEMP_GZ_PATH,
+    TEMP_TEXT_PATH,
+    TEMP_TSV_PATH,
+)
 
 # Load config file.
 with open(CONFIG_FILE_PATH, "r", encoding="utf-8") as conf_file_cont:
@@ -41,7 +46,7 @@ class MyCorpus:
 
     def __iter__(self):
         """Multi-file corpus iterator. Used to feed data
-           line by line to the Word2Vec training method."""
+        line by line to the Word2Vec training method."""
 
         # If source is a list .txt of scraped urls:
         if self.source_type == "list":
@@ -79,7 +84,7 @@ class MyCorpus:
                         yield sentence
 
     def file_type_handling(self, file):
-        """ Call appropriate functions based on corpus file type. """
+        """Call appropriate functions based on corpus file type."""
 
         # Document is a preprepared .tsv with a "lemma" column.
         if ".tsv." in file:
@@ -105,11 +110,17 @@ class MyCorpus:
 
     def convert_tsv(self, tsv_file, out_file):
         """Create a .txt file with continuous text from lemma column.
-           One line = one sentence."""
+        One line = one sentence."""
 
         # Read .tsv file's lemma column to a pandas DataFrame.
-        df = read_csv(tsv_file, engine="c", on_bad_lines="warn",
-                      sep="\t", quoting=3, usecols=["lemma"])
+        df = read_csv(
+            tsv_file,
+            engine="c",
+            on_bad_lines="warn",
+            sep="\t",
+            quoting=3,
+            usecols=["lemma"],
+        )
         # Remove NaN rows.
         df.dropna(how="all", inplace=True)
         # Convert to list.
@@ -125,18 +136,20 @@ class MyCorpus:
                 elif i in punct:
                     f.write("\n")
 
+
 class EpochSaver(CallbackAny2Vec):
     """Callback class to save trained model after each epoch."""
+
     # Convert!
 
     def __init__(self, model_path):
         """Object base attributes."""
         self.model_path = model_path
-        self.epoch = 0 # Needed for filename.
+        self.epoch = 0  # Needed for filename.
 
     def on_epoch_end(self, model):
         """Called at the end of each epoch.
-           Autosave temporary model files."""
+        Autosave temporary model files."""
         output_path = f"{self.model_path}_epoch{self.epoch}_autosave"
         model.save(output_path)
         self.epoch += 1

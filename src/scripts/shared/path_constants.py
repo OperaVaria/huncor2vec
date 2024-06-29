@@ -24,5 +24,5 @@ TEMP_GZ_PATH = (TEMP_DIR_PATH).joinpath("temp.gz")
 
 
 # Print on accidental run:
-if __name__ == '__main__':
+if __name__ == "__main__":
     print("Importable module. Not meant to be run!")

@@ -16,7 +16,7 @@ from bs4 import BeautifulSoup
 from pick import pick
 
 # Conditional imports (to be runnable as a standalone script).
-if __name__ == '__main__':
+if __name__ == "__main__":
     from shared.path_constants import LINKS_DIR_PATH
 else:
     from scripts.shared.path_constants import LINKS_DIR_PATH
@@ -29,20 +29,20 @@ def corpus_select_menu():
     options = ["1. text (25GB)", "2. clean (83GB)", "3. ana (511GB)", "4. exit"]
 
     while True:
-        _, index = pick(options, title, indicator='=>', default_index=0)
+        _, index = pick(options, title, indicator="=>", default_index=0)
         match index:
-            case 0: # Standard text corpus.
+            case 0:  # Standard text corpus.
                 corpus_url = "https://nessie.ilab.sztaki.hu/~ndavid/Webcorpus2_text/"
                 list_filename = "list_webcor2_text.txt"
-            case 1: # Cleaned and lemmatised corpus.
+            case 1:  # Cleaned and lemmatised corpus.
                 corpus_url = "https://nessie.ilab.sztaki.hu/~ndavid/Webcorpus2_clean/"
                 list_filename = "list_webcor2_clean.txt"
-            case 2: # Corpus with lemma and morphological analysis added.
+            case 2:  # Corpus with lemma and morphological analysis added.
                 corpus_url = "https://nessie.ilab.sztaki.hu/~ndavid/Webcorpus2/"
                 list_filename = "list_webcor2_ana.txt"
-            case 3: # Break out of menu loop
+            case 3:  # Break out of menu loop
                 break
-            case _: # Incorrect selection (should not happen).
+            case _:  # Incorrect selection (should not happen).
                 print("Selection error!")
                 sys_exit(1)
 
@@ -53,8 +53,8 @@ def corpus_select_menu():
 
 
 def webcorpus2_scraping(corpus_url, out_file):
-    """ Scrape selected webcorpus2 website for document links.
-        File url list saved to links/, single url/line format. """
+    """Scrape selected webcorpus2 website for document links.
+    File url list saved to links/, single url/line format."""
 
     print("Scraping...")
 
@@ -81,7 +81,7 @@ def webcorpus2_scraping(corpus_url, out_file):
 
 
 def main():
-    """ Main function. """
+    """Main function."""
 
     print("\nWebcorpus 2.0 scraper\n")
 
@@ -90,6 +90,6 @@ def main():
 
 
 # Run when launched as standalone script.
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
     print("Exiting...")
