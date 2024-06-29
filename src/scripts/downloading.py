@@ -9,7 +9,7 @@ Part of the HunCor2Vec project.
 
 """
 
-# Imports.
+# Imports:
 from os.path import basename
 from urllib.request import urlretrieve
 
@@ -37,8 +37,10 @@ def download_all(list_file, out_folder):
 def main():
     """ Main function. """
 
+    print("\nHunCor2 Downloader\n")
+
     # Get input (filename).
-    list_path = file_select_menu("HunCor2 Downloader\n\nSelect list file: ", LINKS_DIR_PATH, ".txt")
+    list_path = file_select_menu("HunCor2 Downloader\nSelect list file: ", LINKS_DIR_PATH, ".txt")
 
     # If does not exist, create downloads/ dir.
     DOWNLOADS_DIR_PATH.mkdir(parents=True, exist_ok=True)

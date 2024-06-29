@@ -8,40 +8,47 @@ Part of the HunCor2Vec project.
 
 """
 
-# Imports.
+# Imports:
 import logging
+from multiprocessing import cpu_count
 from sys import exit as sys_exit
 from gensim.test.utils import datapath
 from gensim.models import Word2Vec
 from pick import pick
+from yaml import safe_load
 
 # Conditional imports (to be runnable as a stand-alone script).
 if __name__ == "__main__":
-    from shared.classes import MyCorpus
+    from shared.classes import MyCorpus, EpochSaver
     from shared.misc import file_select_menu
     from shared.path_constants import (
         DOWNLOADS_DIR_PATH,
         LINKS_DIR_PATH,
         MODELS_DIR_PATH,
+        CONFIG_FILE_PATH,
     )
 
 else:
-    from scripts.shared.classes import MyCorpus
+    from scripts.shared.classes import MyCorpus, EpochSaver
     from scripts.shared.misc import file_select_menu
     from scripts.shared.path_constants import (
         DOWNLOADS_DIR_PATH,
         LINKS_DIR_PATH,
         MODELS_DIR_PATH,
+        CONFIG_FILE_PATH,
     )
 
 
 
 def new_or_load():
     """ Ask user to train completely new model file, or load existing one
-        and continue training. """
+        and continue training. Returns model file path and the type of selected
+        operation (new or load)."""
+
     title = "Word2Vec trainer\nSelect option: "
     options = ["1. Train new model", "2. Load existing model", "3. Exit"]
     _, index = pick(options, title, indicator='=>', default_index=0)
+
     match index:
         case 0: # New
             new_model_name = input("Enter a name for the model: ")
@@ -52,18 +59,22 @@ def new_or_load():
             operation_type = "load"
         case 2: # Pass values to exit or return to main menu.
             return None, None
-        case _:
-            # Incorrect selection (should not happen).
+        case _: # Incorrect selection (should not happen).
             print("Selection error!")
             sys_exit(1)
+
     return operation_type, model_path
 
 
 def get_training_source():
-    """ Ask user for type and location of training source"""
+    """ Ask user for type and location of training sources. Returns the
+        type of the source (list of file urls or a directory of downloaded
+        files) and its path."""
+
     title = "Select the type of training material: "
     options = ["1. Link list file", "2. Downloaded packages"]
     _, index = pick(options, title, indicator='=>', default_index=0)
+
     match index:
         case 0: # Link list.
             # Setup file path.
@@ -73,21 +84,30 @@ def get_training_source():
             # Select model.
             source_path = DOWNLOADS_DIR_PATH
             source_type = "dir"
-        case _:
-            # Incorrect selection (should not happen).
+        case _: # Incorrect selection (should not happen).
             print("Selection error!")
             sys_exit(1)
+
     return source_type, source_path
 
 
 def model_training(operation_type, model_path, source_type, source_path):
     """ Train model based on previous selections. """
 
+    # Load settings form config.yml file
+    with open(CONFIG_FILE_PATH, "r", encoding="utf-8") as fconf:
+        config_file = safe_load(fconf)
+        word2vec_config = config_file["Word2Vec"]
+
+    # Get number of CPU cores to set number of workers.
+    cpu_core_num = cpu_count()
+
     # Initialize and train new model.
     if operation_type == "new":
         sentences = MyCorpus(source_type, source_path)
-        new_model = Word2Vec(sentences=sentences)
-        print("Training complete.")
+        epoch_save = EpochSaver(model_path)
+        new_model = Word2Vec(sentences=sentences, callbacks=[epoch_save],
+                             workers=cpu_core_num, **word2vec_config)
         return new_model
 
     # Load and continue training model.
@@ -96,7 +116,9 @@ def model_training(operation_type, model_path, source_type, source_path):
         loaded_model = Word2Vec.load(model_path)
         loaded_model.build_vocab(more_sentences, update=True)
         loaded_model.train(more_sentences, total_examples=loaded_model.corpus_count,
-                            epochs=loaded_model.epochs)
+                            epochs=loaded_model.epochs, callbacks=[epoch_save],
+                            vector_size=word2vec_config["vector_size"],
+                            workers=cpu_core_num)
         return loaded_model
 
     # Incorrect argument passed (should not happen).
@@ -106,6 +128,8 @@ def model_training(operation_type, model_path, source_type, source_path):
 
 def main():
     """ Main function. """
+
+    print("\nWord2Vec trainer\n")
 
     # Configure logging.
     logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
@@ -126,7 +150,7 @@ def main():
         # Save model.
         model.save(model_path)
         print("Model saved.")
-        input("\nPress Enter to continue...")
+        input("\nPress Enter to exit...")
 
     # else (operation_type = None): exit or return to main menu.
 
