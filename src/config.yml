@@ -1,0 +1,11 @@
+# HonCor2Vec settings
+
+Word2Vec:
+  vector_size: 300
+  window: 5
+  min_count: 5
+  sg: 0 # Training algorithm: 1 for skip-gram; otherwise CBOW.
+  epochs: 5
+
+Tokenizer:
+  min-length: 3
