@@ -26,7 +26,7 @@ def corpus_select_menu():
     """Corpus select menu. Sets up corpus url and output file name, calls scraping function."""
 
     title = "Webcorpus 2.0 scraper\nSelect corpus: "
-    options = ["1. text (25GB)", "2. clean (83GB)", "3. ana (511GB)", "4. exit"]
+    options = ["1. text (25GB)", "2. clean (83GB)", "3. ana (511GB)", "4. Exit"]
 
     while True:
         _, index = pick(options, title, indicator="=>", default_index=0)

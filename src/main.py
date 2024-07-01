@@ -76,7 +76,7 @@ def task_menu():
 def main():
     """Main function."""
 
-    print("\nHunCor2Vec toolset\n")
+    print("\nHunCor2Vec toolset")
 
     # Check if necessary dirs exist.
     check_dirs([LINKS_DIR_PATH, MODELS_DIR_PATH, TEMP_DIR_PATH])
