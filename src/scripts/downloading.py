@@ -1,4 +1,4 @@
-""" 
+"""
 
 downloading.py
 
@@ -25,13 +25,23 @@ else:
 def download_all(list_file, out_folder):
     """Download all files from the urls listed in the link list file."""
     with open(list_file, mode="r", encoding="utf-8") as link_list:
-        for link in link_list:
-            link = link.rstrip()  # Strip newline.
+        for line_index, link in enumerate(link_list):
+            # Strip newline.
+            link = link.rstrip()
+            # Set variables
             file_name = basename(link)
+            if file_name == "":
+                file_name = "unknown.unk"
             out_file_path = (out_folder).joinpath(file_name)
+            # Retrieve with error handling:
             print(f"Downloading {file_name}...")
-            urlretrieve(link, out_file_path)
-            print("Completed.")
+            try:
+                urlretrieve(link, out_file_path)
+            except ValueError:
+                print(f"Unknown URL type on line {line_index}!")
+                print("Failed.")
+            else:
+                print("Completed.")
 
 
 def main():
@@ -51,7 +61,7 @@ def main():
     download_all(list_path, DOWNLOADS_DIR_PATH)
 
     # End prompt.
-    print(f"All files have been downloaded to:\n{DOWNLOADS_DIR_PATH}")
+    print(f"The files have been downloaded to:\n{DOWNLOADS_DIR_PATH}")
     input("\nPress Enter to continue...")
 
 
