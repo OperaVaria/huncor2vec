@@ -8,7 +8,7 @@ Python classes of the for the HunCor2Vec project.
 
 # Imports:
 import gzip
-from os import scandir
+from os import scandir, remove
 from os.path import basename
 from shutil import copyfileobj
 from urllib.request import urlretrieve
@@ -19,6 +19,7 @@ from pandas import read_csv
 from yaml import safe_load
 from .path_constants import (
     CONFIG_FILE_PATH,
+    TEMP_DIR_PATH,
     TEMP_GZ_PATH,
     TEMP_TEXT_PATH,
     TEMP_TSV_PATH,
@@ -137,19 +138,29 @@ class MyCorpus:
                     f.write("\n")
 
 
-class EpochSaver(CallbackAny2Vec):
-    """Callback class to save trained model after each epoch."""
-
-    # Convert!
+class AutoSaver(CallbackAny2Vec):
+    """Callback class to save trained model after each epoch and
+    at the end of training operations."""
 
     def __init__(self, model_path):
         """Object base attributes."""
         self.model_path = model_path
-        self.epoch = 0  # Needed for filename.
+        self.model_file_name = basename(model_path)
+        self.epoch = 0
 
     def on_epoch_end(self, model):
         """Called at the end of each epoch.
         Autosave temporary model files."""
-        output_path = f"{self.model_path}_epoch{self.epoch}_autosave"
+        file_name = f"AUTOSAVE_epoch{self.epoch}_{self.model_file_name}"
+        output_path = datapath((TEMP_DIR_PATH).joinpath(file_name))
         model.save(output_path)
         self.epoch += 1
+
+    def on_train_end(self, model):
+        """Called at the end of all training operations. Saves
+        model and removes temporary files."""
+        model.save(self.model_path)
+        del_ext = (".gz", ".mdl",".npy", ".tsv", ".txt")
+        for file in scandir(TEMP_DIR_PATH):
+            if file.name.lower().endswith(del_ext):
+                remove(file.path)

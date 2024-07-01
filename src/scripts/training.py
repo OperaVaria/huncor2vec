@@ -19,7 +19,7 @@ from yaml import safe_load
 
 # Conditional imports (to be runnable as a stand-alone script).
 if __name__ == "__main__":
-    from shared.classes import MyCorpus, EpochSaver
+    from shared.classes import MyCorpus, AutoSaver
     from shared.misc import file_select_menu
     from shared.path_constants import (
         DOWNLOADS_DIR_PATH,
@@ -29,7 +29,7 @@ if __name__ == "__main__":
     )
 
 else:
-    from scripts.shared.classes import MyCorpus, EpochSaver
+    from scripts.shared.classes import MyCorpus, AutoSaver
     from scripts.shared.misc import file_select_menu
     from scripts.shared.path_constants import (
         DOWNLOADS_DIR_PATH,
@@ -103,13 +103,15 @@ def model_training(operation_type, model_path, source_type, source_path):
     # Get number of CPU cores to set number of workers.
     cpu_core_num = cpu_count()
 
+    # Initialize model autosave object.
+    auto_save = AutoSaver(model_path)
+
     # Initialize and train new model.
     if operation_type == "new":
         sentences = MyCorpus(source_type, source_path)
-        epoch_save = EpochSaver(model_path)
         new_model = Word2Vec(
             sentences=sentences,
-            callbacks=[epoch_save],
+            callbacks=[auto_save],
             workers=cpu_core_num,
             **word2vec_config,
         )
@@ -124,9 +126,9 @@ def model_training(operation_type, model_path, source_type, source_path):
             more_sentences,
             total_examples=loaded_model.corpus_count,
             epochs=loaded_model.epochs,
-            callbacks=[epoch_save],
-            vector_size=word2vec_config["vector_size"],
-            workers=cpu_core_num,
+            callbacks=[auto_save],
+            # vector_size=word2vec_config["vector_size"],
+            # workers=cpu_core_num,
         )
         return loaded_model
 
@@ -156,11 +158,8 @@ def main():
         source_type, source_path = get_training_source()
 
         # Call training function.
-        model = model_training(operation_type, model_path, source_type, source_path)
+        model_training(operation_type, model_path, source_type, source_path)
 
-        # Save model.
-        model.save(model_path)
-        print("Model saved.")
         input("\nPress Enter to exit...")
 
     # else (operation_type = None): exit or return to main menu.
