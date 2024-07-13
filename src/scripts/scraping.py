@@ -12,6 +12,7 @@ Part of the HunCor2Vec project.
 import logging
 from re import compile as re_compile
 from sys import exit as sys_exit
+from pathlib import Path
 import requests
 from bs4 import BeautifulSoup
 from pick import pick
@@ -27,7 +28,7 @@ logging.basicConfig(
     format="%(asctime)s : %(levelname)s : %(message)s", level=logging.INFO
 )
 
-def corpus_select_menu():
+def corpus_select_menu() -> None:
     """Corpus select menu. Sets up corpus url and output file name, calls scraping function."""
 
     title = "Webcorpus 2.0 scraper\nSelect corpus: "
@@ -57,7 +58,7 @@ def corpus_select_menu():
         webcorpus2_scraping(corpus_url, list_file_path)
 
 
-def webcorpus2_scraping(corpus_url, out_file):
+def webcorpus2_scraping(corpus_url: str, out_file: Path) -> None:
     """Scrape selected webcorpus2 website for document links.
     File url list saved to links/, single url/line format."""
 
@@ -88,7 +89,7 @@ def webcorpus2_scraping(corpus_url, out_file):
     input("Press Enter to return...")
 
 
-def main():
+def main() -> None:
     """Main function."""
 
     print("\nWebcorpus 2.0 scraper\n")

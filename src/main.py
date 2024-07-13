@@ -8,10 +8,9 @@ This small command line app provides automation tools to easily
 retrieve material form the Hungarian Webcorpus 2.0, train a Word2Vec
 model with the said texts, and evaluate the results.
 
-TODO: 1. Error handling.
-      2. More query tasks.
-      4. Documentation.
-      5. Possible GUI.
+TODO: 1. Testing
+      2. Documentation.
+      3. Possible GUI.
 
 """
 
@@ -54,6 +53,7 @@ logging.basicConfig(
     format="%(asctime)s : %(levelname)s : %(message)s", level=logging.INFO
 )
 
+
 def task_menu():
     """Task select menu. Calls the main function of the appropriate script."""
 
@@ -74,14 +74,14 @@ def task_menu():
             case 4:  # Break loop, exit app.
                 break
             case _:  # Incorrect selection (should not happen).
-                logging.error("Selection error!")
+                logging.error("selection error!")
                 sys_exit(1)
 
 
-def main():
+def main() -> None:
     """Main function."""
 
-    print("\nHunCor2Vec toolset")
+    logging.info("HunCor2Vec toolset")
 
     # Check if necessary dirs exist.
     check_dirs([LINKS_DIR_PATH, MODELS_DIR_PATH, TEMP_DIR_PATH])
@@ -89,7 +89,7 @@ def main():
     # Launch main menu.
     task_menu()
 
-    print("Exiting...")
+    logging.info("Exiting...")
 
 
 # Run main function.

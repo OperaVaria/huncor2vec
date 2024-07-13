@@ -29,7 +29,8 @@ logging.basicConfig(
     format="%(asctime)s : %(levelname)s : %(message)s", level=logging.INFO
 )
 
-def query_task_menu(model):
+
+def query_task_menu(model: Word2Vec) -> None:
     """Menu to select appropriate query task."""
 
     title = "Select task: "
@@ -56,7 +57,7 @@ def query_task_menu(model):
                 sys_exit(1)
 
 
-def two_words_similarity(model):
+def two_words_similarity(model: Word2Vec) -> None:
     """Calculate the similarity between two words."""
     word1 = input("\nEnter word #1: ")
     word2 = input("Enter word #2: ")
@@ -69,7 +70,7 @@ def two_words_similarity(model):
     input("\nPress Enter to return...")
 
 
-def five_most_similar(model):
+def five_most_similar(model: Word2Vec) -> None:
     """List five most similar words to input."""
     word = input("\nEnter word: ")
     try:
@@ -81,7 +82,7 @@ def five_most_similar(model):
     input("\nPress Enter to return...")
 
 
-def does_not_match(model):
+def does_not_match(model: Word2Vec) -> None:
     """Find the word that does not match the rest."""
     words = input("\nEnter words (separated by space): ").split()
     try:
@@ -93,7 +94,7 @@ def does_not_match(model):
     input("\nPress Enter to return...")
 
 
-def main():
+def main() -> None:
     """Main function."""
 
     # Ask for model file name and load.

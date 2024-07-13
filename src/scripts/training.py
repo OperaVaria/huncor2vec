@@ -36,9 +36,14 @@ else:
         CONFIG_FILE_PATH,
     )
 
+# Configure logging.
+logging.basicConfig(
+    format="%(asctime)s : %(levelname)s : %(message)s", level=logging.INFO
+)
 
-def new_or_load():
-    """Ask user to train completely new model file, or load existing one
+
+def new_or_load() -> tuple[str | None, str | None]:
+    """Ask user to train a completely new model file, or load existing one
     and continue training. Returns model file path and the type of selected
     operation (new or load)."""
 
@@ -65,7 +70,7 @@ def new_or_load():
     return operation_type, model_path
 
 
-def get_training_source():
+def get_training_source() -> tuple[str, str]:
     """Ask user for type and location of training sources. Returns the
     type of the source (list of file urls or a directory of downloaded
     files) and its path."""
@@ -84,16 +89,18 @@ def get_training_source():
             source_path = DOWNLOADS_DIR_PATH
             source_type = "dir"
         case _:  # Incorrect selection (should not happen).
-            print("Selection error!")
+            logging.error("Selection error!")
             sys_exit(1)
 
     return source_type, source_path
 
 
-def model_training(operation_type, model_path, source_type, source_path):
+def model_training(
+    operation_type: str, model_path: str, source_type: str, source_path: str
+) -> Word2Vec:
     """Train model based on previous selections."""
 
-    # Load settings form config.yml file
+    # Load settings from config.yml file
     config_file = load_config_file(CONFIG_FILE_PATH)
     word2vec_config = config_file["Word2Vec"]
 
@@ -130,7 +137,7 @@ def model_training(operation_type, model_path, source_type, source_path):
         return loaded_model
 
     # Incorrect argument passed (should not happen).
-    print("Error!")
+    logging.error("Error: Invalid argument passed!")
     sys_exit(1)
 
 
@@ -138,11 +145,6 @@ def main():
     """Main function."""
 
     print("\nWord2Vec trainer\n")
-
-    # Configure logging.
-    logging.basicConfig(
-        format="%(asctime)s : %(levelname)s : %(message)s", level=logging.INFO
-    )
 
     # Prompt for new model or continue to train existing.
     operation_type, model_path = new_or_load()
@@ -165,4 +167,4 @@ def main():
 # Run main function.
 if __name__ == "__main__":
     main()
-    print("Exiting...")
+    logging.info("Exiting...")

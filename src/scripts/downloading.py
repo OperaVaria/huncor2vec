@@ -11,9 +11,10 @@ Part of the HunCor2Vec project.
 
 # Imports:
 import logging
+from pathlib import Path
 from os.path import basename
-from urllib.request import urlretrieve
 from urllib.error import URLError
+from urllib.request import urlretrieve
 
 # Conditional imports (to be runnable as a stand-alone script):
 if __name__ == "__main__":
@@ -28,8 +29,8 @@ logging.basicConfig(
     format="%(asctime)s : %(levelname)s : %(message)s", level=logging.INFO
 )
 
-def download_all(list_file, out_folder):
-    """Download all files from the urls listed in the link list file."""
+def download_all(list_file: Path, out_folder: Path) -> None:
+    """Download all files from the URLs listed in the link list file."""
     with open(list_file, mode="r", encoding="utf-8") as link_list:
         for line_index, link in enumerate(link_list):
             # Strip newline.
@@ -52,7 +53,7 @@ def download_all(list_file, out_folder):
             else:
                 logging.info("completed.")
 
-def main():
+def main() -> None:
     """Main function."""
 
     print("\nHunCor2 Downloader\n")
