@@ -9,6 +9,7 @@ Part of the HunCor2Vec project.
 """
 
 # Imports:
+import logging
 from pprint import pprint
 from sys import exit as sys_exit
 from gensim.models import Word2Vec
@@ -23,6 +24,10 @@ else:
     from scripts.shared.misc import file_select_menu
     from scripts.shared.path_constants import MODELS_DIR_PATH
 
+# Configure logging
+logging.basicConfig(
+    format="%(asctime)s : %(levelname)s : %(message)s", level=logging.INFO
+)
 
 def query_task_menu(model):
     """Menu to select appropriate query task."""
@@ -47,7 +52,7 @@ def query_task_menu(model):
             case 3:  # Break loop: exit script or return to main menu.
                 break
             case _:  # Incorrect selection (should not happen).
-                print("Selection error!")
+                logging.error("selection error!")
                 sys_exit(1)
 
 
@@ -55,21 +60,36 @@ def two_words_similarity(model):
     """Calculate the similarity between two words."""
     word1 = input("\nEnter word #1: ")
     word2 = input("Enter word #2: ")
-    print(f"\nSimilarity: {model.wv.similarity(word1, word2)}")
+    try:
+        similarity = model.wv.similarity(word1, word2)
+        print(f"\nSimilarity: {similarity}")
+    except KeyError as e_two_sim:
+        logging.error("Word not in vocabulary: %s", e_two_sim)
+        print("\nError: One or both words not in vocabulary.")
     input("\nPress Enter to return...")
 
 
 def five_most_similar(model):
     """List five most similar words to input."""
     word = input("\nEnter word: ")
-    pprint(model.wv.most_similar(word, topn=5))
+    try:
+        similar_words = model.wv.most_similar(word, topn=5)
+        pprint(similar_words)
+    except KeyError as e_five_sim:
+        logging.error("Word not in vocabulary: %s", e_five_sim)
+        print("\nError: Word not in vocabulary.")
     input("\nPress Enter to return...")
 
 
 def does_not_match(model):
     """Find the word that does not match the rest."""
-    words = list(input("\nEnter words (separated by space): ").split())
-    print(f"Mismatch: {model.wv.doesnt_match(words)}")
+    words = input("\nEnter words (separated by space): ").split()
+    try:
+        mismatch = model.wv.doesnt_match(words)
+        print(f"Mismatch: {mismatch}")
+    except KeyError as e_match:
+        logging.error("One or more words not in vocabulary: %s", e_match)
+        print("\nError: One or more words not in vocabulary.")
     input("\nPress Enter to return...")
 
 

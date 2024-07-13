@@ -15,12 +15,11 @@ from sys import exit as sys_exit
 from gensim.test.utils import datapath
 from gensim.models import Word2Vec
 from pick import pick
-from yaml import safe_load
 
 # Conditional imports (to be runnable as a stand-alone script):
 if __name__ == "__main__":
     from shared.classes import MyCorpus, AutoSaver
-    from shared.misc import file_select_menu
+    from shared.misc import file_select_menu, load_config_file
     from shared.path_constants import (
         DOWNLOADS_DIR_PATH,
         LINKS_DIR_PATH,
@@ -29,7 +28,7 @@ if __name__ == "__main__":
     )
 else:
     from scripts.shared.classes import MyCorpus, AutoSaver
-    from scripts.shared.misc import file_select_menu
+    from scripts.shared.misc import file_select_menu, load_config_file
     from scripts.shared.path_constants import (
         DOWNLOADS_DIR_PATH,
         LINKS_DIR_PATH,
@@ -60,7 +59,7 @@ def new_or_load():
         case 2:  # Pass values to exit or return to main menu.
             return None, None
         case _:  # Incorrect selection (should not happen).
-            print("Selection error!")
+            logging.error("Selection error!")
             sys_exit(1)
 
     return operation_type, model_path
@@ -95,9 +94,8 @@ def model_training(operation_type, model_path, source_type, source_path):
     """Train model based on previous selections."""
 
     # Load settings form config.yml file
-    with open(CONFIG_FILE_PATH, "r", encoding="utf-8") as fconf:
-        config_file = safe_load(fconf)
-        word2vec_config = config_file["Word2Vec"]
+    config_file = load_config_file(CONFIG_FILE_PATH)
+    word2vec_config = config_file["Word2Vec"]
 
     # Get number of CPU cores to set number of workers.
     cpu_core_num = cpu_count()

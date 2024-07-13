@@ -10,8 +10,10 @@ Part of the HunCor2Vec project.
 """
 
 # Imports:
+import logging
 from os.path import basename
 from urllib.request import urlretrieve
+from urllib.error import URLError
 
 # Conditional imports (to be runnable as a stand-alone script):
 if __name__ == "__main__":
@@ -21,6 +23,10 @@ else:
     from scripts.shared.path_constants import LINKS_DIR_PATH, DOWNLOADS_DIR_PATH
     from scripts.shared.misc import file_select_menu
 
+# Configure logging
+logging.basicConfig(
+    format="%(asctime)s : %(levelname)s : %(message)s", level=logging.INFO
+)
 
 def download_all(list_file, out_folder):
     """Download all files from the urls listed in the link list file."""
@@ -30,19 +36,21 @@ def download_all(list_file, out_folder):
             link = link.rstrip()
             # Set variables
             file_name = basename(link)
-            if file_name == "":
-                file_name = "unknown.unk"
-            out_file_path = (out_folder).joinpath(file_name)
+            if not file_name:
+                file_name = f"unknown_{line_index}.unk"
+            out_file_path = out_folder.joinpath(file_name)
             # Retrieve with error handling:
-            print(f"Downloading {file_name}...")
+            logging.info("downloading %s...", file_name)
             try:
                 urlretrieve(link, out_file_path)
-            except ValueError:
-                print(f"Unknown URL type on line {line_index}!")
-                print("Failed.")
+            except ValueError as e_unknown_type:
+                logging.error("unknown URL type on line %d: %s", line_index, e_unknown_type)
+                logging.info("failed.")
+            except URLError as e_url:
+                logging.error("error downloading %s: %s", file_name, e_url)
+                logging.info("failed.")
             else:
-                print("Completed.")
-
+                logging.info("completed.")
 
 def main():
     """Main function."""

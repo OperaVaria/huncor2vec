@@ -9,6 +9,7 @@ Part of the HunCor2Vec project.
 """
 
 # Imports:
+import logging
 from re import compile as re_compile
 from sys import exit as sys_exit
 import requests
@@ -21,6 +22,10 @@ if __name__ == "__main__":
 else:
     from scripts.shared.path_constants import LINKS_DIR_PATH
 
+# Configure logging
+logging.basicConfig(
+    format="%(asctime)s : %(levelname)s : %(message)s", level=logging.INFO
+)
 
 def corpus_select_menu():
     """Corpus select menu. Sets up corpus url and output file name, calls scraping function."""
@@ -34,7 +39,7 @@ def corpus_select_menu():
             case 0:  # Standard text corpus.
                 corpus_url = "https://nessie.ilab.sztaki.hu/~ndavid/Webcorpus2_text/"
                 list_filename = "list_webcor2_text.txt"
-            case 1:  # Cleaned and lemmatised corpus.
+            case 1:  # Cleaned and lemmatized corpus.
                 corpus_url = "https://nessie.ilab.sztaki.hu/~ndavid/Webcorpus2_clean/"
                 list_filename = "list_webcor2_clean.txt"
             case 2:  # Corpus with lemma and morphological analysis added.
@@ -43,11 +48,11 @@ def corpus_select_menu():
             case 3:  # Break out of menu loop
                 break
             case _:  # Incorrect selection (should not happen).
-                print("Selection error!")
+                logging.error("selection error!")
                 sys_exit(1)
 
         # Create full path for link list file.
-        list_file_path = (LINKS_DIR_PATH).joinpath(list_filename)
+        list_file_path = LINKS_DIR_PATH.joinpath(list_filename)
         # Call scraping function.
         webcorpus2_scraping(corpus_url, list_file_path)
 
@@ -58,13 +63,16 @@ def webcorpus2_scraping(corpus_url, out_file):
 
     print("Scraping...")
 
-    # Get website.
-    grab = requests.get(url=corpus_url, timeout=10)
-    if grab.ok is not True:
-        return grab.raise_for_status()
+    # Get website, raise error and notify if unsuccessful.
+    try:
+        res = requests.get(url=corpus_url, timeout=10)
+        res.raise_for_status()
+    except requests.RequestException as e_req:
+        logging.error("request failed: %s", e_req)
+        return
 
-    # Parse with bs4.
-    soup = BeautifulSoup(grab.text, "html.parser")
+    # Parse with BeautifulSoup.
+    soup = BeautifulSoup(res.text, "html.parser")
 
     # If does not exist, create links/ dir.
     LINKS_DIR_PATH.mkdir(parents=True, exist_ok=True)
@@ -76,8 +84,8 @@ def webcorpus2_scraping(corpus_url, out_file):
             my_file.write(f"{corpus_url}{gz_url}\n")
 
     # End prompts.
-    print(f"Process Done. Saved to {out_file}")
-    return input("Press Enter to return...")
+    logging.info("process Done. Saved to %s", out_file)
+    input("Press Enter to return...")
 
 
 def main():

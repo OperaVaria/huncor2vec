@@ -16,6 +16,7 @@ TODO: 1. Error handling.
 """
 
 # Imports:
+import logging
 from sys import exit as sys_exit
 from pick import pick
 from scripts.scraping import main as scraping
@@ -31,7 +32,7 @@ __contact__ = "lcs_it@proton.me"
 __version__ = "0.0.0"
 __date__ = "2024.xx.xx"
 
-# Licence:
+# License:
 __license__ = "GPLv3"
 __copyright__ = "Copyright © 2024, Csaba Latosinszky"
 
@@ -48,6 +49,10 @@ You should have received a copy of the GNU General Public License along with thi
 If not, see <https://www.gnu.org/licenses/>
 """
 
+# Configure logging
+logging.basicConfig(
+    format="%(asctime)s : %(levelname)s : %(message)s", level=logging.INFO
+)
 
 def task_menu():
     """Task select menu. Calls the main function of the appropriate script."""
@@ -69,7 +74,7 @@ def task_menu():
             case 4:  # Break loop, exit app.
                 break
             case _:  # Incorrect selection (should not happen).
-                print("Selection error!")
+                logging.error("Selection error!")
                 sys_exit(1)
 
 
