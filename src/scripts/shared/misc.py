@@ -71,6 +71,4 @@ def load_config_file(file_path: Path) -> dict:
 
 # Print on accidental run:
 if __name__ == "__main__":
-    config_file_test = load_config_file("D:\\Programozás\\Python\\huncor2vec\\src\\config.yml")
-    print (config_file_test)
-    
+    print("Importable module. Not meant to be run!")
