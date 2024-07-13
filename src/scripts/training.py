@@ -17,7 +17,7 @@ from gensim.models import Word2Vec
 from pick import pick
 from yaml import safe_load
 
-# Conditional imports (to be runnable as a stand-alone script).
+# Conditional imports (to be runnable as a stand-alone script):
 if __name__ == "__main__":
     from shared.classes import MyCorpus, AutoSaver
     from shared.misc import file_select_menu
@@ -27,7 +27,6 @@ if __name__ == "__main__":
         MODELS_DIR_PATH,
         CONFIG_FILE_PATH,
     )
-
 else:
     from scripts.shared.classes import MyCorpus, AutoSaver
     from scripts.shared.misc import file_select_menu
@@ -77,7 +76,7 @@ def get_training_source():
     _, index = pick(options, title, indicator="=>", default_index=0)
 
     match index:
-        case 0:  # Link list.
+        case 0:  # Link list
             # Setup file path.
             source_path = file_select_menu("Select list file: ", LINKS_DIR_PATH, ".txt")
             source_type = "list"

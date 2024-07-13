@@ -15,7 +15,7 @@ import requests
 from bs4 import BeautifulSoup
 from pick import pick
 
-# Conditional imports (to be runnable as a standalone script).
+# Conditional imports (to be runnable as a standalone script):
 if __name__ == "__main__":
     from shared.path_constants import LINKS_DIR_PATH
 else:

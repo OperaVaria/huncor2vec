@@ -15,7 +15,7 @@ from gensim.models import Word2Vec
 from gensim.test.utils import datapath
 from pick import pick
 
-# Conditional imports (to be runnable as a stand-alone script).
+# Conditional imports (to be runnable as a stand-alone script):
 if __name__ == "__main__":
     from shared.misc import file_select_menu
     from shared.path_constants import MODELS_DIR_PATH
@@ -44,7 +44,7 @@ def query_task_menu(model):
                 five_most_similar(model)
             case 2:
                 does_not_match(model)
-            case 3:  # Break loop, exit script or return to main menu.
+            case 3:  # Break loop: exit script or return to main menu.
                 break
             case _:  # Incorrect selection (should not happen).
                 print("Selection error!")

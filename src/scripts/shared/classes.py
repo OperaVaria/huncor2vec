@@ -2,7 +2,7 @@
 
 classes.py
 
-Python classes of the for the HunCor2Vec project.
+Python classes of the HunCor2Vec project.
 
 """
 
@@ -110,7 +110,7 @@ class MyCorpus:
             copyfileobj(f_in, f_out)
 
     def convert_tsv(self, tsv_file, out_file):
-        """Create a .txt file with continuous text from lemma column.
+        """Create a .txt file with continuous text from the lemma column.
         One line = one sentence."""
 
         # Read .tsv file's lemma column to a pandas DataFrame.
@@ -124,11 +124,11 @@ class MyCorpus:
         )
         # Remove NaN rows.
         df.dropna(how="all", inplace=True)
-        # Convert to list.
+        # Convert to Python list.
         df_list = list(df["lemma"])
 
         # Write words to out_file (min_length 3), add newline in place of sentence
-        # closing punctuation.
+        # closing punctuations.
         with open(out_file, mode="w+", encoding="utf-8") as f:
             for i in df_list:
                 punct = [".", ";", "?", "!"]
@@ -140,7 +140,7 @@ class MyCorpus:
 
 class AutoSaver(CallbackAny2Vec):
     """Callback class to save trained model after each epoch and
-    at the end of training operations."""
+    at the end of all training operations."""
 
     def __init__(self, model_path):
         """Object base attributes."""

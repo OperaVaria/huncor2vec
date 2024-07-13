@@ -50,7 +50,7 @@ If not, see <https://www.gnu.org/licenses/>
 
 
 def task_menu():
-    """Task select menu. Calls main function of appropriate script."""
+    """Task select menu. Calls the main function of the appropriate script."""
 
     title = "HunCor2Vec toolset\nSelect task: "
     options = ["1. Scraping", "2. Downloading", "3. Training", "4. Querying", "5. Exit"]

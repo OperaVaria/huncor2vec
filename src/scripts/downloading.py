@@ -13,7 +13,7 @@ Part of the HunCor2Vec project.
 from os.path import basename
 from urllib.request import urlretrieve
 
-# Conditional imports (to be runnable as a stand-alone script).
+# Conditional imports (to be runnable as a stand-alone script):
 if __name__ == "__main__":
     from shared.path_constants import LINKS_DIR_PATH, DOWNLOADS_DIR_PATH
     from shared.misc import file_select_menu
