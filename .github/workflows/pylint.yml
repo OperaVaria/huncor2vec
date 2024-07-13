@@ -19,7 +19,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install pylint beautifulsoup4 gensim pick requests
+        pip install pylint beautifulsoup4 gensim pandas pick requests pyyaml
     - name: Analysing the code with pylint
       run: |
         pylint $(git ls-files '*.py' '*.pyw')
