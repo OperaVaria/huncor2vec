@@ -19,15 +19,11 @@ from urllib.request import urlretrieve
 # Conditional imports (to be runnable as a stand-alone script):
 if __name__ == "__main__":
     from shared.path_constants import LINKS_DIR_PATH, DOWNLOADS_DIR_PATH
-    from shared.misc import file_select_menu
+    from shared.misc import check_dirs, default_logging, file_select_menu
 else:
-    from scripts.shared.path_constants import LINKS_DIR_PATH, DOWNLOADS_DIR_PATH
-    from scripts.shared.misc import file_select_menu
+    from tools.shared.path_constants import LINKS_DIR_PATH, DOWNLOADS_DIR_PATH
+    from tools.shared.misc import check_dirs, default_logging, file_select_menu
 
-# Configure logging
-logging.basicConfig(
-    format="%(asctime)s : %(levelname)s : %(message)s", level=logging.INFO
-)
 
 def download_all(list_file: Path, out_folder: Path) -> None:
     """Download all files from the URLs listed in the link list file."""
@@ -41,40 +37,43 @@ def download_all(list_file: Path, out_folder: Path) -> None:
                 file_name = f"unknown_{line_index}.unk"
             out_file_path = out_folder.joinpath(file_name)
             # Retrieve with error handling:
-            logging.info("downloading %s...", file_name)
+            logging.info("Downloading %s...", file_name)
             try:
                 urlretrieve(link, out_file_path)
-            except ValueError as e_unknown_type:
-                logging.error("unknown URL type on line %d: %s", line_index, e_unknown_type)
-                logging.info("failed.")
-            except URLError as e_url:
-                logging.error("error downloading %s: %s", file_name, e_url)
-                logging.info("failed.")
+            except ValueError as err_unk_type:
+                logging.error("Download failed! Error on line %d: %s", line_index, err_unk_type)
+            except URLError as err_url:
+                logging.error("Error downloading %s: %s", file_name, err_url)
             else:
-                logging.info("completed.")
+                logging.info("Completed.")
+
 
 def main() -> None:
     """Main function."""
 
-    print("\nHunCor2 Downloader\n")
+    logging.info("Launching the Webcorpus 2.0 Downloader tool.")
 
     # Get input (filename).
     list_path = file_select_menu(
-        "HunCor2 Downloader\nSelect list file: ", LINKS_DIR_PATH, ".txt"
+        "Webcorpus 2.0 Downloader\nSelect a list file: ", LINKS_DIR_PATH, ".txt"
     )
 
-    # If does not exist, create downloads/ dir.
-    DOWNLOADS_DIR_PATH.mkdir(parents=True, exist_ok=True)
-
-    # Call download function.
-    download_all(list_path, DOWNLOADS_DIR_PATH)
-
-    # End prompt.
-    print(f"The files have been downloaded to:\n{DOWNLOADS_DIR_PATH}")
-    input("\nPress Enter to continue...")
+    # Only continue operations if a legitimate file was selected.
+    if list_path:
+        # Call download function.
+        download_all(list_path, DOWNLOADS_DIR_PATH)
+        # End prompt.
+        logging.info("The files have been downloaded to %s", DOWNLOADS_DIR_PATH)
+        input("Press Enter to return...")
 
 
 # Run when launched as standalone script.
 if __name__ == "__main__":
+    # Set default logging settings.
+    default_logging()
+    # Check if necessary dirs exist.
+    check_dirs([LINKS_DIR_PATH, DOWNLOADS_DIR_PATH])
+    # Launch main function.
     main()
-    print("Exiting...")
+    # Ending message.
+    logging.info("Exiting...")

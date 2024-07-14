@@ -11,11 +11,14 @@ import gzip
 import logging
 from os import scandir, remove
 from os.path import basename
+from pathlib import Path
 from shutil import copyfileobj
+from typing import Iterator, List
 from urllib.request import urlretrieve
-from gensim import utils
+from gensim.models import Word2Vec
 from gensim.models.callbacks import CallbackAny2Vec
 from gensim.test.utils import datapath
+from gensim.utils import simple_preprocess
 from pandas import read_csv
 from .misc import load_config_file
 from .path_constants import (
@@ -26,11 +29,6 @@ from .path_constants import (
     TEMP_TSV_PATH,
 )
 
-# Configure logging
-logging.basicConfig(
-    format="%(asctime)s : %(levelname)s : %(message)s", level=logging.INFO
-)
-
 # Load config file.
 config_file = load_config_file(CONFIG_FILE_PATH)
 
@@ -38,7 +36,7 @@ config_file = load_config_file(CONFIG_FILE_PATH)
 class MyCorpus:
     """Represents a multi-file text corpus."""
 
-    def __init__(self, source_type, source_path):
+    def __init__(self, source_type: str, source_path: Path) -> None:
         """Initialize object base attributes."""
 
         # Source file properties.
@@ -50,11 +48,11 @@ class MyCorpus:
         self.temp_tsv_file = datapath(TEMP_TSV_PATH)
         self.temp_gz_file = datapath(TEMP_GZ_PATH)
 
-    def __iter__(self):
-        """Multi-file corpus iterator. Used to feed tokenized data
+    def __iter__(self) -> Iterator[List[str]]:
+        """Multi-file corpus iterator. Used to feed (yield) tokenized data
         line by line to the Word2Vec training method."""
 
-        # If source is a list .txt of scraped urls:
+        # If source is a list .txt of scraped URLs:
         if self.source_type == "list":
             yield from self._process_link_list()
         # If source is a directory with downloaded files.
@@ -62,9 +60,9 @@ class MyCorpus:
             yield from self._process_directory()
         # Else: error.
         else:
-            logging.error("unknown source type: %s", self.source_type)
+            logging.error("Unknown source type: %s", self.source_type)
 
-    def _process_link_list(self):
+    def _process_link_list(self) -> Iterator[List[str]]:
         """Process a list of links to .gz files."""
         try:
             with open(self.source_path, mode="r", encoding="utf-8") as link_list:
@@ -73,35 +71,35 @@ class MyCorpus:
                     self.download_gz(link, self.temp_gz_file)
                     self.file_type_handling(self.temp_gz_file)
                     yield from self._iterate_temp_text_file()
-        except Exception as e_link_list:
-            logging.error("error processing link list: %s", e_link_list)
+        except Exception as err_link_list:
+            logging.exception("Error processing link list: %s", err_link_list)
             raise
 
-    def _process_directory(self):
+    def _process_directory(self) -> Iterator[List[str]]:
         """Process a directory of .gz files."""
         try:
             for file in scandir(self.source_path):
                 if file.name.lower().endswith(".gz"):
                     self.file_type_handling(file.path)
                     yield from self._iterate_temp_text_file()
-        except Exception as e_files:
-            logging.error("error processing files: %s", e_files)
+        except Exception as err_files:
+            logging.exception("Error processing directory: %s", err_files)
             raise
 
-    def _iterate_temp_text_file(self):
+    def _iterate_temp_text_file(self) -> Iterator[List[str]]:
         """Iterate through the temporary text file and yield tokenized sentences."""
         try:
             with open(self.temp_text_file, mode="r", encoding="utf-8") as file:
                 for line in file:
-                    sentence = utils.simple_preprocess(
+                    sentence = simple_preprocess(
                         line, min_len=config_file["Tokenizer"]["min-length"]
                     )
                     yield sentence
-        except Exception as e_temp:
-            logging.error("error iterating temp text file: %s", e_temp)
+        except Exception as err_temp:
+            logging.exception("Error while iterating temp text file: %s", err_temp)
             raise
 
-    def file_type_handling(self, file):
+    def file_type_handling(self, file: str) -> None:
         """Call appropriate functions based on corpus file type."""
 
         # Document is a preprepared .tsv with a "lemma" column.
@@ -113,28 +111,28 @@ class MyCorpus:
         else:
             self.extract_gz(file, self.temp_text_file)
 
-    def download_gz(self, url, out_file):
+    def download_gz(self, url: str, out_file: str) -> None:
         """Download a .gz file."""
         filename = basename(url)
-        logging.info("downloading %s", filename)
+        logging.info("Downloading %s", filename)
         try:
             urlretrieve(url, out_file)
-        except Exception as e_download:
-            logging.error("error downloading %s: %s", url, e_download)
+        except Exception as err_download:
+            logging.exception("Error downloading %s: %s", url, err_download)
             raise
 
-    def extract_gz(self, gz_file, out_file):
+    def extract_gz(self, gz_file: str, out_file: str) -> None:
         """Extract and save the content of a .gz file."""
         filename = basename(gz_file)
-        logging.info("uncompressing %s", filename)
+        logging.info("Uncompressing %s", filename)
         try:
             with gzip.open(gz_file, "r") as f_in, open(out_file, "wb") as f_out:
                 copyfileobj(f_in, f_out)
-        except Exception as e_extract:
-            logging.error("error extracting %s: %s", gz_file, e_extract)
+        except Exception as err_extract:
+            logging.exception("Error extracting %s: %s", gz_file, err_extract)
             raise
 
-    def convert_tsv(self, tsv_file, out_file):
+    def convert_tsv(self, tsv_file: str, out_file: str) -> None:
         """Create a .txt file with continuous text from the .tsv lemma column.
         One line = one sentence."""
         try:
@@ -159,8 +157,8 @@ class MyCorpus:
                         f.write(f"{word} ")
                     elif word in [".", ";", "?", "!"]:
                         f.write("\n")
-        except Exception as e_tsv:
-            logging.error("error converting TSV %s: %s", tsv_file, e_tsv)
+        except Exception as err_tsv:
+            logging.exception("Error converting TSV %s: %s", tsv_file, err_tsv)
             raise
 
 
@@ -168,29 +166,32 @@ class AutoSaver(CallbackAny2Vec):
     """Callback class to save the trained model after each epoch and
     at the end of all training operations."""
 
-    def __init__(self, model_path):
+    def __init__(self, model_path: Path) -> None:
         """Initialize object with base attributes."""
         self.model_path = model_path
         self.model_file_name = basename(model_path)
         self.epoch = 0
 
-    def on_epoch_end(self, model):
+    def on_epoch_end(self, model: Word2Vec) -> None:
         """Called at the end of each epoch.
         Autosave temporary model files."""
         file_name = f"AUTOSAVE_epoch{self.epoch}_{self.model_file_name}"
-        output_path = datapath((TEMP_DIR_PATH).joinpath(file_name))
+        output_path = datapath(TEMP_DIR_PATH.joinpath(file_name))
         model.save(output_path)
-        logging.info("autosaved model at end of epoch %d.", self.epoch)
+        logging.info("Autosaved model at end of epoch %d.", self.epoch)
         self.epoch += 1
 
-    def on_train_end(self, model):
+    def on_train_end(self, model: Word2Vec) -> None:
         """Called at the end of all training operations. Saves
         model and removes temporary files."""
         model.save(self.model_path)
+        logging.info("Removing temporary files.")
         for file in scandir(TEMP_DIR_PATH):
             if file.name.lower().endswith((".gz", ".mdl", ".npy", ".tsv", ".txt")):
                 try:
                     remove(file.path)
-                    logging.info("removed temporary file: %s", file.path)
-                except (FileNotFoundError, OSError) as e_remove:
-                    logging.error("error removing file %s: %s", file.path, e_remove)
+                    logging.info("%s removed.", file.path)
+                except (FileNotFoundError, OSError) as err_remove:
+                    logging.error("Error removing file %s: %s", file.path, err_remove)
+                finally:
+                    logging.info("Cleanup completed.")

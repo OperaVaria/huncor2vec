@@ -16,14 +16,13 @@ TODO: 1. Testing
 
 # Imports:
 import logging
-from sys import exit as sys_exit
 from pick import pick
-from scripts.scraping import main as scraping
-from scripts.downloading import main as downloading
-from scripts.training import main as training
-from scripts.querying import main as querying
-from scripts.shared.path_constants import LINKS_DIR_PATH, MODELS_DIR_PATH, TEMP_DIR_PATH
-from scripts.shared.misc import check_dirs
+from tools.scraping import main as scraping
+from tools.downloading import main as downloading
+from tools.training import main as training
+from tools.querying import main as querying
+from tools.shared.path_constants import LINKS_DIR_PATH, MODELS_DIR_PATH, TEMP_DIR_PATH
+from tools.shared.misc import default_logging, check_dirs, error_crash
 
 # Metadata variables:
 __author__ = "OperaVaria"
@@ -48,18 +47,15 @@ You should have received a copy of the GNU General Public License along with thi
 If not, see <https://www.gnu.org/licenses/>
 """
 
-# Configure logging
-logging.basicConfig(
-    format="%(asctime)s : %(levelname)s : %(message)s", level=logging.INFO
-)
 
+def tools_menu() -> None:
+    """Tool select menu. Calls the main function of the appropriate script."""
 
-def task_menu():
-    """Task select menu. Calls the main function of the appropriate script."""
-
-    title = "HunCor2Vec toolset\nSelect task: "
+    # Menu variables.
+    title = "HunCor2Vec Toolset\nSelect a task: "
     options = ["1. Scraping", "2. Downloading", "3. Training", "4. Querying", "5. Exit"]
 
+    # Menu loop.
     while True:
         _, index = pick(options, title, indicator="=>", default_index=0)
         match index:
@@ -74,24 +70,23 @@ def task_menu():
             case 4:  # Break loop, exit app.
                 break
             case _:  # Incorrect selection (should not happen).
-                logging.error("selection error!")
-                sys_exit(1)
+                error_crash("Selection error!")
 
 
 def main() -> None:
     """Main function."""
-
-    logging.info("HunCor2Vec toolset")
-
+    logging.info("Launching the HunCor2Vec toolset.")
     # Check if necessary dirs exist.
     check_dirs([LINKS_DIR_PATH, MODELS_DIR_PATH, TEMP_DIR_PATH])
-
     # Launch main menu.
-    task_menu()
-
-    logging.info("Exiting...")
+    tools_menu()
 
 
-# Run main function.
+# Run when launched as a script.
 if __name__ == "__main__":
+    # Set default logging settings.
+    default_logging()
+    # Launch main function.
     main()
+    # Ending message.
+    logging.info("Exiting...")

@@ -1,4 +1,4 @@
-# HonCor2Vec settings
+# HunCor2Vec settings
 
 Word2Vec:
   vector_size: 300
