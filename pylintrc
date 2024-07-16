@@ -1,3 +1,2 @@
 [MESSAGES CONTROL]
-disable=duplicate-code,
-        import-error
+disable=import-error

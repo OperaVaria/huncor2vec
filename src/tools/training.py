@@ -62,7 +62,7 @@ def new_or_load() -> Tuple[Optional[str], Optional[str]]:
     options = ["1. Train new model", "2. Load existing model", "3. Exit"]
     _, index = pick(options, title, indicator="=>", default_index=0)
 
-    # Menu loop.
+    # Selection switch.
     match index:
         case 0:  # New
             operation_type = "new"
@@ -86,10 +86,12 @@ def get_training_source() -> Tuple[str, Path]:
     type of the source (list of file urls or a directory of downloaded
     files) and its path."""
 
+    # Menu variables.
     title = "Select the type of training material: "
     options = ["1. Link list file", "2. Downloaded packages"]
     _, index = pick(options, title, indicator="=>", default_index=0)
 
+    # Menu switch.
     match index:
         case 0:  # Link list
             source_type = "list"
@@ -146,6 +148,7 @@ def model_training(
 
     # Incorrect argument passed (should not happen).
     error_crash("Invalid argument passed!")
+    return None
 
 
 def main() -> None:
