@@ -100,8 +100,6 @@ def get_training_source() -> Tuple[str, Path]:
             source_type = "dir"
             source_path = DOWNLOADS_DIR_PATH
         case _:  # Incorrect selection (should not happen).
-            source_type = None
-            source_path = None
             error_crash("Selection error!")
 
     return source_type, source_path
