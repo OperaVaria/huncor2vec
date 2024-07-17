@@ -1,3 +1,2 @@
 [MESSAGES CONTROL]
-disable=possibly-used-before-assignment,
-        import-error
+disable=import-error
