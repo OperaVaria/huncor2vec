@@ -27,8 +27,8 @@ from tools.shared.misc import default_logging, check_dirs, error_crash
 # Metadata variables:
 __author__ = "OperaVaria"
 __contact__ = "lcs_it@proton.me"
-__version__ = "0.0.0"
-__date__ = "2024.xx.xx"
+__version__ = "1.0.0"
+__date__ = "2024.07.17"
 
 # License:
 __license__ = "GPLv3"
@@ -82,7 +82,7 @@ def main() -> None:
     tools_menu()
 
 
-# Run when launched as a script.
+# Run when launched as a script:
 if __name__ == "__main__":
     # Set default logging settings.
     default_logging()
