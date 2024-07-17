@@ -159,7 +159,8 @@ def main() -> None:
     # Prompt for new model or continue to train existing.
     operation_type, model_path = new_or_load()
 
-    source_path = None
+    # Pylint test.
+    source_path = source_type = None
 
     # If a legitimate values are returned from new_or_load:
     # Set up training source.
