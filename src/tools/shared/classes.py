@@ -13,7 +13,7 @@ from os import scandir
 from os.path import basename
 from pathlib import Path
 from shutil import copyfileobj
-from typing import Iterator, List
+from typing import Iterator, Literal
 from urllib.request import urlretrieve
 from gensim.models import Word2Vec
 from gensim.models.callbacks import CallbackAny2Vec
@@ -36,7 +36,7 @@ config_file = load_config_file(CONFIG_FILE_PATH)
 class MyCorpus:
     """Represents a multi-file text corpus."""
 
-    def __init__(self, source_type: str, source_path: Path) -> None:
+    def __init__(self, source_type: Literal["list", "dir"], source_path: Path) -> None:
         """Initialize object base attributes."""
 
         # Source file properties.
@@ -48,7 +48,7 @@ class MyCorpus:
         self.temp_tsv_file = datapath(TEMP_TSV_PATH)
         self.temp_gz_file = datapath(TEMP_GZ_PATH)
 
-    def __iter__(self) -> Iterator[List[str]]:
+    def __iter__(self) -> Iterator[list[str]]:
         """Multi-file corpus iterator. Used to feed (yield) tokenized data
         line by line to the Word2Vec training method."""
 
@@ -62,7 +62,7 @@ class MyCorpus:
         else:
             logging.error("Unknown source type: %s", self.source_type)
 
-    def _process_link_list(self) -> Iterator[List[str]]:
+    def _process_link_list(self) -> Iterator[list[str]]:
         """Process a list of links to .gz files."""
         try:
             with open(self.source_path, mode="r", encoding="utf-8") as link_list:
@@ -75,7 +75,7 @@ class MyCorpus:
             logging.exception("Error processing link list: %s", err_link_list)
             raise
 
-    def _process_directory(self) -> Iterator[List[str]]:
+    def _process_directory(self) -> Iterator[list[str]]:
         """Process a directory of .gz files."""
         try:
             for file in scandir(self.source_path):
@@ -86,7 +86,7 @@ class MyCorpus:
             logging.exception("Error processing directory: %s", err_files)
             raise
 
-    def _iterate_temp_text_file(self) -> Iterator[List[str]]:
+    def _iterate_temp_text_file(self) -> Iterator[list[str]]:
         """Iterate through the temporary text file and yield tokenized sentences."""
         try:
             with open(self.temp_text_file, mode="r", encoding="utf-8") as file:
@@ -168,7 +168,7 @@ class AutoSaver(CallbackAny2Vec):
 
     def __init__(self, model_path: Path) -> None:
         """Initialize object with base attributes."""
-        self.model_path = model_path
+        self.model_path = datapath(model_path)
         self.model_file_name = basename(model_path)
         self.epoch = 0
 

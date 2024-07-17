@@ -12,7 +12,7 @@ Part of the HunCor2Vec project.
 import logging
 from multiprocessing import cpu_count
 from pathlib import Path
-from typing import Optional, Tuple
+from typing import Literal, Optional
 from gensim.test.utils import datapath
 from gensim.models import Word2Vec
 from pick import pick
@@ -52,7 +52,7 @@ else:
     )
 
 
-def new_or_load() -> Tuple[Optional[str], Optional[str]]:
+def new_or_load() -> tuple[Optional[Literal["new", "load"]], Optional[Path]]:
     """Ask user to train a completely new model file, or load an existing one
     and continue training. Returns model file path and the type of selected
     operation (new or load)."""
@@ -67,12 +67,10 @@ def new_or_load() -> Tuple[Optional[str], Optional[str]]:
         case 0:  # New
             operation_type = "new"
             new_model_name = input("Enter a name for the model: ")
-            model_path = datapath((MODELS_DIR_PATH).joinpath(f"{new_model_name}.mdl"))
+            model_path = MODELS_DIR_PATH.joinpath(f"{new_model_name}.mdl")
         case 1:  # Load
             operation_type = "load"
-            model_path = datapath(
-                file_select_menu("Select model file: ", MODELS_DIR_PATH, ".mdl")
-            )
+            model_path = file_select_menu("Select model file: ", MODELS_DIR_PATH, ".mdl")
         case 2:  # Pass values to exit or return to main menu.
             return None, None
         case _:  # Incorrect selection (should not happen).
@@ -81,7 +79,7 @@ def new_or_load() -> Tuple[Optional[str], Optional[str]]:
     return operation_type, model_path
 
 
-def get_training_source() -> Tuple[str, Path]:
+def get_training_source() -> tuple[Literal["list", "dir"], Optional[Path]]:
     """Ask user for the type and location of the training sources. Returns the
     type of the source (list of file urls or a directory of downloaded
     files) and its path."""
@@ -106,8 +104,11 @@ def get_training_source() -> Tuple[str, Path]:
 
 
 def model_training(
-    operation_type: str, model_path: str, source_type: str, source_path: Path
-) -> Word2Vec:
+    operation_type: Literal["new", "load"],
+    model_path: Path,
+    source_type: Literal["list", "dir"],
+    source_path: Path,
+) -> Optional[Word2Vec]:
     """Train model based on previous selections."""
 
     # Load settings from config.yml file
@@ -134,7 +135,7 @@ def model_training(
     # Load and continue training model.
     if operation_type == "load":
         more_sentences = MyCorpus(source_type, source_path)
-        loaded_model = Word2Vec.load(model_path)
+        loaded_model = Word2Vec.load(datapath(model_path))
         loaded_model.build_vocab(more_sentences, update=True)
         loaded_model.train(
             more_sentences,
@@ -159,19 +160,15 @@ def main() -> None:
     # Prompt for new model or continue to train existing.
     operation_type, model_path = new_or_load()
 
-    # Pylint test.
-    source_path = source_type = None
-
-    # If a legitimate values are returned from new_or_load:
+    # If legitimate values are returned from new_or_load:
     # Set up training source.
     if operation_type and model_path:
         source_type, source_path = get_training_source()
 
-    # If a legitimate source path is returned from get_training_source:
-    # Call training function.
-    if source_path:
+    # If legitimate values are returned from new_or_load and
+    # get_training_source: call training function.
+    if operation_type and model_path and source_type and source_path:
         model_training(operation_type, model_path, source_type, source_path)
-        input("Press Enter to exit...")
 
 
 # Run when launched as standalone script.

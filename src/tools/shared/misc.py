@@ -12,7 +12,7 @@ from os import remove, scandir
 from os.path import isfile
 from pathlib import Path
 from sys import exit as sys_exit
-from typing import List, Tuple
+from typing import Optional
 from pick import pick
 from yaml import safe_load
 
@@ -52,7 +52,7 @@ def file_select_loop(prompt_text: str, dir_path: Path) -> Path:
     return file_path
 
 
-def file_select_menu(prompt_text: str, dir_path: Path, file_ext: str) -> None | Path:
+def file_select_menu(prompt_text: str, dir_path: Path, file_ext: str) -> Optional[Path]:
     """Create a pick menu to select a file from a given directory.
     Filters based on file extension. Returns selected file path."""
 
@@ -70,19 +70,19 @@ def file_select_menu(prompt_text: str, dir_path: Path, file_ext: str) -> None | 
         input("Press Enter to continue...")
     else:
         option, _ = pick(options, title, indicator="=>", default_index=0)
-        selected_file = dir_path.joinpath(option)
+        selected_file = dir_path.joinpath(option) # type: ignore
 
     return selected_file
 
 
-def check_dirs(dirs: List[Path]) -> None:
+def check_dirs(dirs: list[Path]) -> None:
     """Check if required directories exist,
     if not, create them."""
     for path in dirs:
         path.mkdir(parents=True, exist_ok=True)
 
 
-def dir_cleanup(dir_path: Path, file_ext: str | Tuple[str]) -> None:
+def dir_cleanup(dir_path: Path, file_ext: str | tuple[str, ...]) -> None:
     """Remove all files from a directory with a certain
     file extension"""
 
