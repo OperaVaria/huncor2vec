@@ -159,12 +159,14 @@ def main() -> None:
     # Prompt for new model or continue to train existing.
     operation_type, model_path = new_or_load()
 
+    source_path = None
+
     # If a legitimate values are returned from new_or_load:
     # Set up training source.
     if operation_type and model_path:
         source_type, source_path = get_training_source()
 
-    # If a legitimate source path is returned get_training_source:
+    # If a legitimate source path is returned from get_training_source:
     # Call training function.
     if source_path:
         model_training(operation_type, model_path, source_type, source_path)
