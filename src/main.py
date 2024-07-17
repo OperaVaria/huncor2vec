@@ -9,8 +9,7 @@ retrieve material form the Hungarian Webcorpus 2.0, train a Word2Vec
 model with the said texts, and evaluate the results.
 
 TODO: 1. Testing
-      2. Documentation.
-      3. Possible GUI.
+      3. Possible GUI
 
 """
 
