@@ -8,20 +8,36 @@ Miscellaneous auxiliary functions of the HunCor2Vec project.
 
 # Imports.
 import logging
-from os import scandir
+from os import remove, scandir
 from os.path import isfile
 from pathlib import Path
 from sys import exit as sys_exit
-from typing import List
+from typing import List, Tuple
 from pick import pick
 from yaml import safe_load
 
 
-def check_dirs(dirs: List[Path]) -> None:
-    """Check if required directories exist,
-    if not, create them."""
-    for path in dirs:
-        path.mkdir(parents=True, exist_ok=True)
+def yes_no_menu(prompt_text: str) -> bool:
+    """Pick menu to confirm a choice. Returns the
+    confirmation value."""
+
+    # Menu variables.
+    title = prompt_text
+    options = ["1. Yes", "2. No", "3. Cancel"]
+    _, index = pick(options, title, indicator="=>", default_index=0)
+
+    # Menu switch.
+    match index:
+        case 0:  # Yes
+            confirm = True
+        case 1:  # No
+            confirm = False
+        case 2:  # Cancel (exit script)
+            sys_exit(0)
+        case _:  # Incorrect selection (should not happen).
+            error_crash("Selection error!")
+
+    return confirm
 
 
 def file_select_loop(prompt_text: str, dir_path: Path) -> Path:
@@ -59,9 +75,34 @@ def file_select_menu(prompt_text: str, dir_path: Path, file_ext: str) -> None | 
     return selected_file
 
 
+def check_dirs(dirs: List[Path]) -> None:
+    """Check if required directories exist,
+    if not, create them."""
+    for path in dirs:
+        path.mkdir(parents=True, exist_ok=True)
+
+
+def dir_cleanup(dir_path: Path, file_ext: str | Tuple[str]) -> None:
+    """Remove all files from a directory with a certain
+    file extension"""
+
+    # File removal loop with error handling.
+    for file in scandir(dir_path):
+        if file.name.lower().endswith(file_ext):
+            try:
+                remove(file.path)
+                logging.info("%s removed.", file.path)
+            except (FileNotFoundError, OSError) as err_remove:
+                logging.error("Error removing file %s: %s", file.path, err_remove)
+
+    # Operation end prompt.
+    logging.info("Process completed.")
+    input("Press Enter to continue...")
+
+
 def load_config_file(file_path: Path) -> dict:
     """Safely load a YAML config file with error handling.
-       Returns the full config file hierarchy."""
+    Returns the full config file hierarchy."""
     try:
         with open(file_path, "r", encoding="utf-8") as conf_file_cont:
             config_dict = safe_load(conf_file_cont)

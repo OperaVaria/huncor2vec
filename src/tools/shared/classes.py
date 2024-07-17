@@ -9,7 +9,7 @@ Python classes of the HunCor2Vec project.
 # Imports:
 import gzip
 import logging
-from os import scandir, remove
+from os import scandir
 from os.path import basename
 from pathlib import Path
 from shutil import copyfileobj
@@ -20,7 +20,7 @@ from gensim.models.callbacks import CallbackAny2Vec
 from gensim.test.utils import datapath
 from gensim.utils import simple_preprocess
 from pandas import read_csv
-from .misc import load_config_file
+from .misc import dir_cleanup, load_config_file
 from .path_constants import (
     CONFIG_FILE_PATH,
     TEMP_DIR_PATH,
@@ -186,12 +186,4 @@ class AutoSaver(CallbackAny2Vec):
         model and removes temporary files."""
         model.save(self.model_path)
         logging.info("Removing temporary files.")
-        for file in scandir(TEMP_DIR_PATH):
-            if file.name.lower().endswith((".gz", ".mdl", ".npy", ".tsv", ".txt")):
-                try:
-                    remove(file.path)
-                    logging.info("%s removed.", file.path)
-                except (FileNotFoundError, OSError) as err_remove:
-                    logging.error("Error removing file %s: %s", file.path, err_remove)
-                finally:
-                    logging.info("Cleanup completed.")
+        dir_cleanup(TEMP_DIR_PATH, (".gz", ".mdl", ".npy", ".tsv", ".txt"))

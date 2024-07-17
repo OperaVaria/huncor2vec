@@ -15,18 +15,65 @@ from pathlib import Path
 from os.path import basename
 from urllib.error import URLError
 from urllib.request import urlretrieve
+from pick import pick
 
 # Conditional imports (to be runnable as a stand-alone script):
 if __name__ == "__main__":
     from shared.path_constants import LINKS_DIR_PATH, DOWNLOADS_DIR_PATH
-    from shared.misc import check_dirs, default_logging, file_select_menu
+    from shared.misc import (
+        check_dirs,
+        dir_cleanup,
+        error_crash,
+        default_logging,
+        file_select_menu,
+        yes_no_menu,
+    )
 else:
     from tools.shared.path_constants import LINKS_DIR_PATH, DOWNLOADS_DIR_PATH
-    from tools.shared.misc import check_dirs, default_logging, file_select_menu
+    from tools.shared.misc import (
+        check_dirs,
+        dir_cleanup,
+        error_crash,
+        default_logging,
+        file_select_menu,
+        yes_no_menu,
+    )
+
+def download_menu() -> None:
+    """Download task select menu: download corpus files from link list
+       or cleanup previous downloads."""
+
+    # Menu variables.
+    title = "Webcorpus 2.0 Downloader\nSelect a task: "
+    options = ["1. Download packages", "2. Package cleanup", "3. Exit"]
+
+    # Menu loop.
+    while True:
+        _, index = pick(options, title, indicator="=>", default_index=0)
+        match index:
+            case 0:  # Download corpus files from url list.
+                # Select list file.
+                list_path = file_select_menu(
+                    "Webcorpus 2.0 Downloader\nSelect a list file: ", LINKS_DIR_PATH, ".txt"
+                )
+                # If a legitimate file selected, call download_all function:
+                if list_path:
+                    download_all(list_path, DOWNLOADS_DIR_PATH)
+            case 1:  # Cleanup with confirmation.
+                confirm = yes_no_menu("Delete all files in the downloads folder?")
+                # Positive confirmation: delete all .gz files from downloads/ dir.
+                if confirm:
+                    dir_cleanup(DOWNLOADS_DIR_PATH, (".gz", ".mdl", ".npy", ".tsv", ".txt"))
+            case 2: # Exit (break loop).
+                break
+            case _:  # Incorrect selection (should not happen).
+                error_crash("Selection error!")
 
 
 def download_all(list_file: Path, out_folder: Path) -> None:
     """Download all files from the URLs listed in the link list file."""
+
+    # File downloading loop.
     with open(list_file, mode="r", encoding="utf-8") as link_list:
         for line_index, link in enumerate(link_list):
             # Strip newline.
@@ -47,24 +94,16 @@ def download_all(list_file: Path, out_folder: Path) -> None:
             else:
                 logging.info("Completed.")
 
+    # Operation end prompt.
+    logging.info("Files have been downloaded to %s", DOWNLOADS_DIR_PATH)
+    input("Press Enter to return...")
+
 
 def main() -> None:
     """Main function."""
-
     logging.info("Launching the Webcorpus 2.0 Downloader tool.")
-
-    # Get input (filename).
-    list_path = file_select_menu(
-        "Webcorpus 2.0 Downloader\nSelect a list file: ", LINKS_DIR_PATH, ".txt"
-    )
-
-    # Only continue operations if a legitimate file was selected.
-    if list_path:
-        # Call download function.
-        download_all(list_path, DOWNLOADS_DIR_PATH)
-        # End prompt.
-        logging.info("The files have been downloaded to %s", DOWNLOADS_DIR_PATH)
-        input("Press Enter to return...")
+    # Launch task select menu:
+    download_menu()
 
 
 # Run when launched as standalone script.
