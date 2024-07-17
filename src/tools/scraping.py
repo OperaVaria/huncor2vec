@@ -81,7 +81,7 @@ def webcorpus2_scraping(corpus_url: str, out_file: Path) -> None:
             my_file.write(f"{corpus_url}{gz_url}\n")
 
     # Operation end prompt.
-    logging.info("Process Done. Saved to: %s", out_file)
+    logging.info("Process Done. Saved to %s", out_file)
     input("Press Enter to return...")
 
 
